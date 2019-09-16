@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="assets/css/normalise.css">
+        <link rel="stylesheet" href="assets/css/main.css">
+  
+    </head>
+    <body>
+        <!-- <iframe height="400px" width="50%" frameborder="0" scrolling="no" src="https://developers.google.com/maps/documentation/utils/geocoder/embed">
+        </iframe>     -->
+        <!-- <iframe style="width:100%; max-width:1200px; height:500px;" frameborder="0" scrolling="no" src="https://www.hikingproject.com/widget/map?favs=1&x=46.57566019999999&y=-122.71942619999999&h=500"></iframe> -->
+ <!-- lat=46.57566019999999& lon=-122.71942619999999 -->
+<h1>Trail Finder</h1>
+
+        <form id="trailFinder">
+          <label for="trailTypes">Trail Type</label>
+          <select id="trailTypes" name="traiTypes" required>
+              <option value="hiking">hiking</option>
+              <option value="running">running</option>
+              <option value="mountain biking">mountain biking</option>
+            </select>
+          <label for="lat">latitude</label>
+          <input type="text" name="lat" id="lat" placeholder="lat" value="46.57566019999999">
+          <label for="lon">longitude</label>
+          <input type="text" name="lon" id="lon" placeholder="lon" value="-122.71942619999999">
+          <label for="distance">max distance in miles</label>
+          <input type="text" name="distance" id="distance" placeholder="up to 200 miles">
+          <label for="length">minimum length in miles</label>
+          <input type="text" name="length" id="length" placeholder="0">
+          <label for="stars">stars</label>
+          <select id="stars" name="stars">
+              <option value="0">0 and up</option>
+              <option value="1">1 and up</option>
+              <option value="2">2 and up</option>
+              <option value="3">3 and up</option>
+              <option value="4">4 and up</option>
+              </select>
+              <label for="sort">sort by</label>
+              <select id="sort" name="sort">
+                  <option value="quality">quality</option>
+                  <option value="distance">distance</option>
+                  </select>
+          <button type="submit">Submit</button>
+        </form>    
+
+<h2>Results</h2>
+
+<ul class="js-resultsList">
+</ul>                 
+
+        
+        <script type="text/javascript" src="assets/js/jquery-3.4.1.min.js"></script>
+        <script type="text/javascript" src="assets/js/main.js"></script> 
+      
+    </body>
+</html>
