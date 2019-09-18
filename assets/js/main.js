@@ -18,6 +18,7 @@
 
 // https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=40.03&lon=-105.25&maxDistance=10&minDiff=5.6
 
+let trailCoords = [];
 
 function convertToParams(trailType, lat, lon, distance, length, stars, sort){
   let endpoint;
@@ -81,7 +82,6 @@ function getDifficulty(difficulty){
 }
 
 function displayResults(responseJson){
-  let trailCoords = [];
   console.log(responseJson);
   for (let i = 0; i < responseJson.trails.length; i ++){
     let trail = responseJson.trails[i];
@@ -107,8 +107,32 @@ function displayResults(responseJson){
   };
     trailCoords.push(trailCoord);
     console.log(trailCoords);
+    initMap();
   }
 }
+
+
+
+function initMap() {
+var mapProp= {
+  center:new google.maps.LatLng(46.57566019999999,-122.71942619999999),
+  zoom:10,
+};
+var map = new google.maps.Map(document.getElementById("map"),mapProp);
+for (let i = 0; i < trailCoords.length; i++){
+  let coords = trailCoords[i];
+  var latLng = new google.maps.LatLng(coords.latitude, coords.longitude);
+  console.log(latLng);
+  var marker = new google.maps.Marker({
+    position: latLng,
+    map: map
+  });
+ 
+}
+}
+
+
+
 
 
 function watchForm(){

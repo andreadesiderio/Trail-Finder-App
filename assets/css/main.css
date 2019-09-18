@@ -6,3 +6,7 @@ li{
     margin: 10px;
     border: 1px solid black;
 }
+
+#map{
+    height: 300px;
+}
