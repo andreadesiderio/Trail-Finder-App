@@ -18,11 +18,11 @@
 
 // https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=40.03&lon=-105.25&maxDistance=10&minDiff=5.6
 
-let trailCoords = [];
+let trailsData = [];
 
 function convertToParams(trailType, lat, lon, distance, length, stars, sort){
   let endpoint;
-  const key = "200588064-443067deaa27cb0061f1ba22cb5dd120"
+  const key = "200588064-443067deaa27cb0061f1ba22cb5dd120";
   if (trailType == "hiking"){
     endpoint = "https://www.hikingproject.com/data/get-trails";
   } 
@@ -62,22 +62,39 @@ function requestUrl(url){
 
 function getDifficulty(difficulty){
   if (difficulty == "green"){
-    return "EASY"
-  }
-  if (difficulty == "BLUE"){
-    return "INTERMEDIATE"
+    return { 
+      str : "EASY",
+      color : "yellow"
+     }
   }
   if (difficulty == "greenBlue"){
-    return "EASY / INTEMEDIATE";
+    return { 
+      str : "EASY / INTERMEDIATE",
+      color : "green" 
+    }
   }
   if (difficulty == "blue"){
-    return  "INTERMEDIATE"
+    return { str : "INTERMEDIATE",
+            color : "ltblue"
+           }
   }
   if (difficulty == "blueBlack"){
-    return "DIFFICULT"
+    return  {
+      str: "INTERMEDIATE / DIFFICULT",
+      color : "blue"
+    }
+  }
+  if (difficulty == "black"){
+    return {
+      str : "DIFFICULT",
+      color : "purple"
+    }
   }
   if (difficulty == "dBlack"){
-    return "EXTREMELY DIFFICULT"
+    return {
+      str :"EXTREMELY DIFFICULT",
+      color : "black"
+    }
   }
 }
 
@@ -85,13 +102,15 @@ function displayResults(responseJson){
   console.log(responseJson);
   for (let i = 0; i < responseJson.trails.length; i ++){
     let trail = responseJson.trails[i];
-    let difficulty = trail.difficulty;
-    $('.js-resultsList').append(`<li>
-    <img class="listItemImg" src="${trail.imgSqSmall}" alt="trail image">
+    let trailData =  {
+      latitude : trail.latitude,
+    longitude : trail.longitude,
+    difficulty : getDifficulty(trail.difficulty),
+    content :  ` <img class="listItemImg" src="${trail.imgSqSmall}" alt="trail image">
     <h3 class="listItemTile">${trail.name}</h3>
     <p>${trail.location}</p>
     <p>Rating: ${trail.stars} stars </p>
-    <p>Length: ${trail.length} miles. Difficulty: ${getDifficulty(difficulty)}</p>
+    <p>Length: ${trail.length} miles. Difficulty: ${difficulty.str}</p>
     <button class="listItemDropDownButton">Show More</button>
     <div class="dropDownSec">
     <p>${trail.summary}</p>
@@ -99,14 +118,11 @@ function displayResults(responseJson){
     <p>More info at <a href="${trail.url}" target="_blank">${trail.url}</a></p>
     <p>getdirections</p>
     <button class="closeListItemDropDown">See Less</button>
-    </div>
-    </li>`);
-    let trailCoord =  {
-      latitude : trail.latitude,
-    longitude : trail.longitude
+    </div>`
   };
-    trailCoords.push(trailCoord);
-    console.log(trailCoords);
+    trailsData.push(trailData);
+    console.log(trailsData);
+    $('.js-resultsList').append(`<li>${trailData.content}</li>`);
     initMap();
   }
 }
@@ -115,19 +131,31 @@ function displayResults(responseJson){
 
 function initMap() {
 var mapProp= {
-  center:new google.maps.LatLng(46.57566019999999,-122.71942619999999),
+  center:new google.maps.LatLng(46.57566019999999, -122.71942619999999),
   zoom:10,
 };
-var map = new google.maps.Map(document.getElementById("map"),mapProp);
-for (let i = 0; i < trailCoords.length; i++){
-  let coords = trailCoords[i];
-  var latLng = new google.maps.LatLng(coords.latitude, coords.longitude);
+var map = new google.maps.Map(document.getElementById("map"), mapProp);
+for (let i = 0; i < trailsData.length; i++){
+  let trailData = trailsData[i];
+  var latLng = new google.maps.LatLng(trailData.latitude, trailData.longitude);
   console.log(latLng);
+  let url = "http://maps.google.com/mapfiles/ms/icons/";
+  url += trailData.difficulty.color + "-dot.png";
+
+  let infowindow = new google.maps.InfoWindow({
+   content : trailData.content
+  });
+
   var marker = new google.maps.Marker({
     position: latLng,
-    map: map
+    map: map,
+    icon: {
+      url: url
+    }
   });
- 
+  marker.addListener('click', function() {
+    infowindow.open(map, marker);
+  });
 }
 }
 
