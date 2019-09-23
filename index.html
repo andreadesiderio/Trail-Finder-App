@@ -23,10 +23,11 @@
               <option value="running">running</option>
               <option value="mountain biking">mountain biking</option>
             </select>
+            <input id="search" type="text" placeholder="place">
           <label for="lat">latitude</label>
           <input type="text" name="lat" id="lat" placeholder="lat" value="46.57566019999999">
           <label for="lon">longitude</label>
-          <input type="text" name="lon" id="lon" placeholder="lon" value="-122.71942619999999">
+          <input type="text" name="lon" id="lon" placeholder="lon" value="-122.71942619999999"> 
           <label for="distance">max distance in miles</label>
           <input type="text" name="distance" id="distance" placeholder="up to 200 miles">
           <label for="length">minimum length in miles</label>
@@ -56,8 +57,8 @@
         <script type="text/javascript" src="assets/js/jquery-3.4.1.min.js"></script>
         <script type="text/javascript" src="assets/js/main.js"></script>
         <script async defer
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPb2Zkh0XuIN51Qrbb4b7cGSzyFCAvmJA&callback=initMap">
-</script> 
+src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCPb2Zkh0XuIN51Qrbb4b7cGSzyFCAvmJA&callback=initMap&libraries=places">
+</script>  
  
       
     </body>
