@@ -20,7 +20,24 @@
 
 let trailsData = [];
 
-function convertToParams(trailType, lat, lon, distance, length, stars, sort){
+
+
+function geocodeAdress(place, trailType, distance, length, stars, sort){
+  const geocoder = new google.maps.Geocoder();
+  geocoder.geocode({'address': place}, function(results, status) {
+    if (status === 'OK') {
+      const centerLat = results[0].geometry.location.lat();
+      const centerLng = results[0].geometry.location.lng();
+      convertToParams(centerLat, centerLng, trailType, distance, length, stars, sort);
+    }
+    else {
+      alert('Geocode was not successful for the following reason: ' + status);
+    }
+  })
+}
+
+
+function convertToParams(centerLat, centerLng, trailType, distance, length, stars, sort){ 
   let endpoint;
   const key = "200588064-443067deaa27cb0061f1ba22cb5dd120";
   if (trailType == "hiking"){
@@ -33,8 +50,8 @@ function convertToParams(trailType, lat, lon, distance, length, stars, sort){
     endpoint = "https://www.mtbproject.com/data/get-trails";
   } 
   const params = {
-    lat : lat,
-    lon : lon,
+    lat : centerLat,
+    lon : centerLng,
     maxDistance : distance,
     sort : sort,
     minLength : length,
@@ -45,15 +62,16 @@ function convertToParams(trailType, lat, lon, distance, length, stars, sort){
   .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
   const paramString = paramItems.join('&');
   const url = endpoint + "?" + paramString;
-  requestUrl(url);
+  requestUrl(url, centerLat, centerLng);
 }
 
-function requestUrl(url){
-  console.log(url);
+function requestUrl(url, centerLat, centerLng){
+  initMap(centerLat, centerLng);
   fetch(url)
   .then(response =>{
-     if (response.ok){
-    return response.json()}
+    if (response.ok){
+     return response.json()
+    }
     throw new Error (response.statusText)
   })
   .then(responseJson => displayResults(responseJson))
@@ -74,9 +92,10 @@ function getDifficulty(difficulty){
     }
   }
   if (difficulty == "blue"){
-    return { str : "INTERMEDIATE",
-            color : "ltblue"
-           }
+    return { 
+      str : "INTERMEDIATE",
+      color : "ltblue"
+    }
   }
   if (difficulty == "blueBlack"){
     return  {
@@ -99,64 +118,56 @@ function getDifficulty(difficulty){
 }
 
 function displayResults(responseJson){
-  console.log(responseJson);
   for (let i = 0; i < responseJson.trails.length; i ++){
     let trail = responseJson.trails[i];
     let trailData =  {
       latitude : trail.latitude,
-    longitude : trail.longitude,
-    difficulty : getDifficulty(trail.difficulty),
-    content :  function (){return '<img class="listItemImg" src="' + trail.imgSqSmall + '" alt="trail image">\
-    <h3 class="listItemTile">' + trail.name + '</h3>\
-    <p>' + trail.location + '</p>\
-    <p>Rating:' + trail.stars + ' stars </p>\
-    <p>Length:' + trail.length + 'miles. Difficulty:' + this.difficulty.str + '</p>\
-    <button class="listItemDropDownButton">Show More</button>\
-    <div class="dropDownSec">\
-    <p>' + trail.summary + '</p>\
-    <p>Coditions: ' + trail.conditionStatus + '</p>\
-    <p>More info at <a href=" ' + trail.url + '" target="_blank"> ' + trail.url + '</a></p>\
-    <p>getdirections</p>\
-    <button class="closeListItemDropDown">See Less</button>\
-    </div>'}
-  };
-  trailsData.push(trailData);
-  
-    
-    console.log(trailsData);
-    $('.js-resultsList').append(`<li>${trailData.content()}</li>`);
-    initMap();
+      longitude : trail.longitude,
+      difficulty : getDifficulty(trail.difficulty),
+      content :  function (){
+        return '<img class="listItemImg" src="' + trail.imgSqSmall + '" alt="trail image">\
+        <h3 class="listItemTile">' + trail.name + '</h3>\
+        <p>' + trail.location + '</p>\
+        <p>Rating:' + trail.stars + ' stars </p>\
+        <p>Length:' + trail.length + 'miles. Difficulty:' + this.difficulty.str + '</p>\
+        <button class="listItemDropDownButton">Show More</button>\
+        <div class="dropDownSec">\
+        <p>' + trail.summary + '</p>\
+        <p>Coditions: ' + trail.conditionStatus + '</p>\
+        <p>More info at <a href=" ' + trail.url + '" target="_blank"> ' + trail.url + '</a></p>\
+        <p>getdirections</p>\
+        <button class="closeListItemDropDown">See Less</button>\
+        </div>'
+      }
+    };
+  trailsData.push(trailData);    
+  $('.js-resultsList').append(`<li>${trailData.content()}</li>`);
+  // initMap(centerLat, centerLng);
   }
 }
 
-
-
-
-
-function initMap() {
-let mapProp= {
-  center:new google.maps.LatLng(46.57566019999999, -122.71942619999999),
+function initMap(centerLat, centerLng) {
+ let mapProp= {
+  center:new google.maps.LatLng(centerLat, centerLng),
+  // center:new google.maps.LatLng(46.57566019999999, -122.71942619999999),
   zoom:10,
-};
-let map = new google.maps.Map(document.getElementById("map"), mapProp);
-
- 
+ };
+let map = new google.maps.Map(document.getElementById("map"), mapProp); 
   makeTrailMarkers(map);
  }
 
 
 function makeTrailMarkers(map){
-for (let i = 0; i < trailsData.length; i++){
+  alert('hi');
+ for (let i = 0; i < trailsData.length; i++){
   let trailData = trailsData[i];
   var latLng = new google.maps.LatLng(trailData.latitude, trailData.longitude);
   console.log(latLng);
   let url = "http://maps.google.com/mapfiles/ms/icons/";
   url += trailData.difficulty.color + "-dot.png";
-
   let infowindow = new google.maps.InfoWindow({
    content : trailData.content()
   });
-
   let marker = new google.maps.Marker({
     position: latLng,
     map: map,
@@ -167,28 +178,22 @@ for (let i = 0; i < trailsData.length; i++){
   marker.addListener('click', function() {
     infowindow.open(map, marker);
   });
+ }
 }
-}
-
-
-
 
 
 function watchForm(){
-   $('#trailFinder').on('submit', function(event){
-     event.preventDefault();
-     let place = $('#place').val();
-     //let ltlng = get place with maps geo(place)
-     let lat = $('#lat').val();
-     let lon = $('#lon').val();
+  $('#trailFinder').on('submit', function(event){
+    event.preventDefault();
+    let place = $('#place').val();  
     let trailType = $('#trailTypes').val();
     let distance = $('#distance').val();
     let length = $('#length').val();
     let stars = $('#stars').val();
     let sort = $('#sort').val();
     $('.js-resultsList').empty();
-    convertToParams(trailType, lat, lon, distance, length, stars, sort);
-   })
+    geocodeAdress(place, trailType, distance, length, stars, sort);
+  })
 }
 
  $(watchForm);
