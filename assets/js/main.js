@@ -61,20 +61,19 @@ function convertToParams(centerLat, centerLng, trailType, distance, length, star
   const paramItems = Object.keys(params)
   .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
   const paramString = paramItems.join('&');
-  const url = endpoint + "?" + paramString;
-  requestUrl(url, centerLat, centerLng);
+  const trailUrl = endpoint + "?" + paramString;
+  requestUrl(trailUrl, centerLat, centerLng);
 }
 
-function requestUrl(url, centerLat, centerLng){
-  initMap(centerLat, centerLng);
-  fetch(url)
+function requestUrl(trailUrl, centerLat, centerLng){
+  fetch(trailUrl)
   .then(response =>{
     if (response.ok){
      return response.json()
     }
     throw new Error (response.statusText)
   })
-  .then(responseJson => displayResults(responseJson))
+  .then(responseJson => displayResults(responseJson, centerLat, centerLng))
   .catch(error => console.log(error.message))
 }
 
@@ -117,7 +116,7 @@ function getDifficulty(difficulty){
   }
 }
 
-function displayResults(responseJson){
+function displayResults(responseJson, centerLat, centerLng){
   for (let i = 0; i < responseJson.trails.length; i ++){
     let trail = responseJson.trails[i];
     let trailData =  {
@@ -144,6 +143,7 @@ function displayResults(responseJson){
   $('.js-resultsList').append(`<li>${trailData.content()}</li>`);
   // initMap(centerLat, centerLng);
   }
+  initMap(centerLat, centerLng);
 }
 
 function initMap(centerLat, centerLng) {
@@ -153,16 +153,18 @@ function initMap(centerLat, centerLng) {
   zoom:10,
  };
 let map = new google.maps.Map(document.getElementById("map"), mapProp); 
-  makeTrailMarkers(map);
+   makeTrailMarkers(map);
  }
+ 
 
 
-function makeTrailMarkers(map){
+  function makeTrailMarkers(map){
   alert('hi');
  for (let i = 0; i < trailsData.length; i++){
   let trailData = trailsData[i];
-  var latLng = new google.maps.LatLng(trailData.latitude, trailData.longitude);
-  console.log(latLng);
+  let latLng = new google.maps.LatLng(trailData.latitude, trailData.longitude);
+  // let bounds = new google.maps.LatLngBounds(trailData.latitude, trailData.longitude);
+  // console.log(latLng);
   let url = "http://maps.google.com/mapfiles/ms/icons/";
   url += trailData.difficulty.color + "-dot.png";
   let infowindow = new google.maps.InfoWindow({
@@ -175,11 +177,10 @@ function makeTrailMarkers(map){
       url: url
     }
   });
-  marker.addListener('click', function() {
-    infowindow.open(map, marker);
-  });
+  //maker.on.click, show infowindow
  }
 }
+
 
 
 function watchForm(){

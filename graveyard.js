@@ -27,7 +27,7 @@
 // let markers = [];
 
 // searchBox.addListener('places_changed', function (){
-//   let places = searchBox.getPlaces();
+//   let places = searchBox.getPlacdes();
 
 //   if (places.length === 0)
 //   return;
